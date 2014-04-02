@@ -3,7 +3,7 @@ require 'ridley'
 
 Ridley::Logging.logger.level = Logger.const_get 'FATAL'
 
-class ChefMgr < Thor
+class ChefBusBoy < Thor
   @@chef_server = ''
 
   desc "run_list_add", "Add recipes the run list for all nodes matching a search"
@@ -21,7 +21,7 @@ class ChefMgr < Thor
         results.each do |node|
           puts "Updating #{node.name}'s run list with #{options[:recipe_string]}"
           node.run_list << "#{options[:recipe_string]}"
-          get_connection(@@default_chef_parameters).node.update(node)
+          get_connection.node.update(node)
         end
       else
         puts "Transaction cancelled.  Not updating any nodes"
@@ -44,7 +44,7 @@ class ChefMgr < Thor
         results.each do |node|
           puts "Changing #{node.name}'s environment to #{options[:environment]}"
           node.chef_environment = "#{options[:environment]}"
-          get_connection(@@default_chef_parameters).node.update(node)
+          get_connection.node.update(node)
         end
       else
         puts "Transaction cancelled.  Not updating any nodes"
@@ -66,12 +66,12 @@ class ChefMgr < Thor
 
 
   no_commands {
-    def get_connection(params)
+    def get_connection
       @@chef_server = Ridley.from_chef_config(nil, {:ssl => {:verify => false}})
     end
 
     def search(string)
-      chef_server = get_connection(@@default_chef_parameters)
+      chef_server = get_connection
       results = chef_server.partial_search(:node, "#{options[:search_string]}", "", {:rows => 5000})
     end
 

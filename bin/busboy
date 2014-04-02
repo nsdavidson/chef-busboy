@@ -2,5 +2,5 @@
 
 require 'chef-busboy'
 
-ChefMgr.start(ARGV)
+ChefBusBoy.start(ARGV)
 
