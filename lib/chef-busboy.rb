@@ -4,7 +4,6 @@ require 'ridley'
 Ridley::Logging.logger.level = Logger.const_get 'FATAL'
 
 class ChefMgr < Thor
-  @@default_chef_parameters = {server_url: "https://chef.snops.net", client_name: 'ndavidson', client_key: '/Users/ndavidson/.chef/ndavidson.pem'}
   @@chef_server = ''
 
   desc "run_list_add", "Add recipes the run list for all nodes matching a search"
@@ -68,12 +67,7 @@ class ChefMgr < Thor
 
   no_commands {
     def get_connection(params)
-      @@chef_server = Ridley.new(
-        server_url: params[:server_url],
-        client_name: params[:client_name],
-        client_key: params[:client_key],
-        ssl: {verify: false}
-      )
+      @@chef_server = Ridley.from_chef_config(nil, {:ssl => {:verify => false}})
     end
 
     def search(string)
