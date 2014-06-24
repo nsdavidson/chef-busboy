@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'chef-busboy'
-  s.version     = '0.0.2'
+  s.version     = '0.0.5'
   s.date        = '2014-03-21'
   s.summary     = 'Command line tool for chef-server'
   s.description = 'Command line tool for chef-server, implementing a small subset of activities'

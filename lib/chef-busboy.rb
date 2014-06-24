@@ -20,8 +20,33 @@ class ChefBusBoy < Thor
         puts "Selections confirmed...updating run lists now..."
         results.each do |node|
           puts "Updating #{node.name}'s run list with #{options[:recipe_string]}"
-          node.run_list << "#{options[:recipe_string]}"
-          get_connection.node.update(node)
+          full_node = get_connection.node.find("#{node.name}")
+          full_node.run_list << "#{options[:recipe_string]}"
+          get_connection.node.update(full_node)
+        end
+      else
+        puts "Transaction cancelled.  Not updating any nodes"
+      end
+    end
+  end
+
+  desc "run_list_delete", "Add recipes the run list for all nodes matching a search"
+  option :search_string, :required => true
+  option :recipe_string, :required => true
+  def run_list_delete()
+    results = search(options[:search_string])
+    if results.empty?
+      puts "No nodes match this search string"
+    else
+      print_nodes(results)
+      answer = get_user_confirmation("These are the nodes that matched your search and will be updated.  Would you like to continue? y/n")
+      if answer
+        puts "Selections confirmed...updating run lists now..."
+        results.each do |node|
+          puts "Updating #{node.name}'s run list with #{options[:recipe_string]}"
+          full_node = get_connection.node.find("#{node.name}")
+          full_node.run_list.delete("#{options[:recipe_string]}")
+          get_connection.node.update(full_node)
         end
       else
         puts "Transaction cancelled.  Not updating any nodes"
@@ -41,10 +66,12 @@ class ChefBusBoy < Thor
       answer = get_user_confirmation("These are the nodes that matched your search and will be updated.  Would you like to continue? y/n")
       if answer
         puts "Selections confirmed...updating environments now..."
+        update_node_list(results)
         results.each do |node|
           puts "Changing #{node.name}'s environment to #{options[:environment]}"
-          node.chef_environment = "#{options[:environment]}"
-          get_connection.node.update(node)
+          full_node = @@chef_server.node.find("#{node.name}")
+          full_node.chef_environment = "#{options[:environment]}"
+          @@chef_server.node.update(full_node)
         end
       else
         puts "Transaction cancelled.  Not updating any nodes"
@@ -73,6 +100,7 @@ class ChefBusBoy < Thor
     def search(string)
       chef_server = get_connection
       results = chef_server.partial_search(:node, "#{options[:search_string]}", "", {:rows => 5000})
+      #results = chef_server.search(:node, "#{options[:search_string]}", {:rows => 5000})
     end
 
     def print_nodes(nodes)
@@ -91,4 +119,3 @@ class ChefBusBoy < Thor
     end
   }
 end
-
