@@ -1,5 +1,5 @@
 ### Description
-Busboy provides a way to take certain actions on sets of nodes that match a search
+Busboy provides a way to take certain actions on sets of Chef nodes that match a search
 result.  Assumes a workstation with Knife already configured as Busboy will use existing
 knife config.
 
